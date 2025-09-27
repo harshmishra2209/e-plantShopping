@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { removeItem, updateQuantity } from './CartSlice';
+import { removeItem, updateQuantity, clearCart } from './CartSlice';
 import './CartItem.css';
 
 const CartItem = ({ onContinueShopping }) => {
@@ -9,53 +9,48 @@ const CartItem = ({ onContinueShopping }) => {
 
   // Calculate total amount for all products in the cart
   const calculateTotalAmount = () => {
-    let total =0;
-    cart.forEach(item =>
-    {
-        const costNumber = parseFloat(item.parse.substring(1));
-        total += costNumber * item.quantity;;
-    });
-    return total;
-  };
-const handleCheckoutShopping = (e) => {
-  alert('Functionality to be added for future reference');
-};
-  const handleContinueShopping = (e) => {
-   e.preventDefault();
-   onContinueShopping(e);
+     let total = 0;
+
+  cart.forEach(item => {
+    let price = parseFloat(item.cost.substring(1)); // remove "$" and convert
+    total += price * item.quantity;
+  });
+
+  return total;
   };
 
+  const handleContinueShopping = (e) => {
+     onContinueShopping(e);
+  };
+const handleCheckoutShopping = (e) => {
+  e.preventDefault();
+  dispatch(clearCart());
+  alert('Thank you for your purchase! Your cart has been cleared.');
+  onContinueShopping(e);
+};
 
 
   const handleIncrement = (item) => {
-    dispatch(uodateQuantity({
-        name: item.name,
-        quantity: item.quantity +1
-    }));
+     dispatch(updateQuantity({ name: item.name, quantity: item.quantity + 1 }));
   };
 
   const handleDecrement = (item) => {
-   if(item.quantity > 1)
-   {
-        dispatch(uodateQuantity({
-        name: item.name,
-        quantity: item.quantity - 1
-  }));
-   }
-   else
-   {
-    dispatch(removeItem(item.name));
-   }
+  if (item.quantity > 1) {
+    dispatch(updateQuantity({ name: item.name, quantity: item.quantity - 1 }));
+  } else {
+    dispatch(removeItem(item.name)); 
+  }
 };
-  
+
+
   const handleRemove = (item) => {
-    dispatch(removeItem(item.name));
+     dispatch(removeItem(item.name));
   };
 
   // Calculate total cost based on quantity for an item
   const calculateTotalCost = (item) => {
-    const costNumber = parseFloat(item.cost.substring(1));
-    return (costNumber * item.quantity).toFixed(2);
+    let price = parseFloat(item.cost.substring(1)); // "$10.00" → 10
+    return price * item.quantity;
   };
 
   return (
@@ -83,12 +78,11 @@ const handleCheckoutShopping = (e) => {
       <div className="continue_shopping_btn">
         <button className="get-started-button" onClick={(e) => handleContinueShopping(e)}>Continue Shopping</button>
         <br />
-        <button className="get-started-button1">Checkout</button>
+        <button className="get-started-button1" onClick={(e) => handleCheckoutShopping(e)}>Checkout</button>
       </div>
     </div>
   );
 };
 
 export default CartItem;
-
 
